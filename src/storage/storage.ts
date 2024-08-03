@@ -7,7 +7,6 @@ const data: UserRecord[] = [];
 
 // Create File To Store Users if the file does not exist
 const init = function () {
-    const baseDir: string =  "src"
     const filePath: string = path.join(__dirname, 'data.json');
     
     if(!existsSync(filePath)){
@@ -19,8 +18,6 @@ const init = function () {
             console.log('Array Initalized');
           });
     }
-
-
 }
 
 
