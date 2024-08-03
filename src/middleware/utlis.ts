@@ -1,34 +1,70 @@
-import { Request, Response, NextFunction } from 'express';
-import UserRecord from '../types/types';
-import { writeFile, readFile } from 'fs';
-import { __ } from 'lodash/fp';
 import path from 'path';
-import { isNull } from 'lodash';
+import _ from 'lodash';
+import UserRecord from '../types/types';
+const fs = require('node:fs/promises');
+import moment from 'moment';
 
-const getUser = function (req: Request, res:Response, next:NextFunction) {
-    const filePath = path.join(__dirname, "../storage", "data.json")
-    // const username  = req.body.username;
-    // const currentDate = req.body.currentDate;
 
-    readFile(filePath, "utf8", (error, data) => {
-        if (error) {
-          console.log(error);
-          return;
-        }
-        const userData:UserRecord[] = JSON.parse(data);
+const lendUserABook = function (user: UserRecord): UserRecord | boolean {
+    const formatBorrowDate = () => {
+        const currentDate = moment.now();
 
-        if(userData.length < 1){
-            console.log("Username Not In DataBase!")
-            return false;
-        } else {
-            const findUser = (data: UserRecord[]): UserRecord | null => {
+        const yy = new Date(currentDate).getFullYear();
+        let mm = new Date(currentDate).getMonth() + 1;
+        let dd = new Date(currentDate).getDate();
 
-                return null
-            }
+        return `${yy}-${mm}-${dd}`
+    }
     
-            return findUser(userData);
-        }
-    });
+    const updatedUser: UserRecord = {
+        username: user.username,
+        borrowedAnything: true,
+        borrowedDate: formatBorrowDate()
+    }
 
+    if(user.borrowedAnything){
+        return false;
+    } else {
+        return updatedUser;
+    }
 }
-export default getUser;
+
+const returnBorrowedBook = (user: UserRecord): UserRecord | boolean => {
+    const updatedUser: UserRecord = {
+        username: user.username,
+        borrowedAnything: false,
+        borrowedDate: ""
+    }
+
+    if (user.borrowedAnything) {
+        return updatedUser;
+    } else{
+        return false;
+    }
+}
+
+
+const updateDatabase = async (userObj: UserRecord) => {
+    const filePath = path.join(__dirname, "../storage", "data.json");
+
+    try{
+        const data = await fs.readFile(filePath, "utf8");
+        const jsonData = JSON.parse(data);
+    
+        const findUser = (data: UserRecord[]): number  => {
+            return _.findIndex(data, user => user.username === userObj.username);
+        }
+    
+        const foundUserIndex = findUser(jsonData);
+    
+        jsonData[foundUserIndex] = userObj;
+    
+        // Write to file
+        await fs.writeFile(filePath, JSON.stringify(jsonData));   
+
+    }catch(err){
+       console.log(err);
+    }
+}
+
+module.exports = {lendUserABook, updateDatabase, returnBorrowedBook};
