@@ -5,7 +5,7 @@ import { Request, Response, NextFunction } from 'express';
 import moment from 'moment';
 const fs = require('node:fs/promises');
 
-const createUserFunction = async (username: string, userData: UserRecord[], res: Response, filePath:string) => {
+const createUserFunction = async (username: string, userData: UserRecord[], res: Response, filePath:string): Promise<UserRecord> => {
     const newUser: UserRecord = {
         username: username,
         borrowedAnything: false,

@@ -25,7 +25,7 @@ const lendUserABook = function (user: UserRecord): UserRecord | boolean {
     if(user.borrowedAnything){
         return false;
     } else {
-        return updatedUser;
+        return true;
     }
 }
 
@@ -37,7 +37,7 @@ const returnBorrowedBook = (user: UserRecord): UserRecord | boolean => {
     }
 
     if (user.borrowedAnything) {
-        return updatedUser;
+        return true;
     } else{
         return false;
     }

@@ -4,9 +4,6 @@ interface UserRecord {
     borrowedDate: string
 }
 
-interface ValidDate {
-
-}
 
 export default UserRecord;
 
